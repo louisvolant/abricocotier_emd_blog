@@ -1,9 +1,18 @@
+# Single-package workspace: the root project only. `packages` is required
+# for pnpm 10.x to accept this file as a workspace config.
+packages:
+  - "."
 # Build scripts: allow only what each runtime needs; rest false so
 # strictDepBuilds (pnpm >=10.26 / 11) passes.
 allowBuilds:
   esbuild: true
   workerd: true
   sharp: false
+# Same allowlist for pnpm 10.x < 10.26 (e.g. Cloudflare Workers Builds
+# default image) which only understands the list form.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
 
 # Supply-chain hardening: cooldown on brand-new releases (EmDash exempt)
 # and no non-registry transitive sources. (No trustPolicy: no-downgrade --
