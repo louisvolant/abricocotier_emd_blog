@@ -8,11 +8,6 @@ allowBuilds:
   esbuild: true
   workerd: true
   sharp: false
-# Same allowlist for pnpm 10.x < 10.26 (e.g. Cloudflare Workers Builds
-# default image) which only understands the list form.
-onlyBuiltDependencies:
-  - esbuild
-  - workerd
 
 # Supply-chain hardening: cooldown on brand-new releases (EmDash exempt)
 # and no non-registry transitive sources. (No trustPolicy: no-downgrade --
