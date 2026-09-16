@@ -9,14 +9,14 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "abricocotier-v2-db",
-			"database_id": "REMPLACEZ_PAR_VOTRE_DATABASE_ID",
+			"database_name": "abricocotier-v2-d1",
+			"database_id": "1533ebc3-7e3d-4d9b-a19f-7011b7aece4c",
 		},
 	],
 	"r2_buckets": [
 		{
 			"binding": "MEDIA",
-			"bucket_name": "abricocotier-v2-media",
+			"bucket_name": "abricocotier-v2-r2",
 		},
 	],
 	// Sandboxed plugins require Worker Loader, available on Workers paid plans. Uncomment to enable:
