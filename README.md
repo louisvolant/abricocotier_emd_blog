@@ -11,6 +11,7 @@ Personal blog built with [EmDash](https://github.com/emdash-cms/emdash) (Astro-b
 - RSS feed
 - SEO metadata and JSON-LD
 - Dark/light mode
+- Footer links to the author's Personal Page and Portfolio next to the "Powered by EmDash" credit
 - Forms plugin and webhook notifier
 
 ## Pages

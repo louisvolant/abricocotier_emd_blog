@@ -200,6 +200,18 @@ const isLoggedIn = !!Astro.locals.user;
 				<div class="footer-bottom">
 					<p class="footer-copyright">
 						Powered by <a href="https://emdashcms.com">EmDash</a>
+						<span class="footer-sep" aria-hidden="true">|</span>
+						<a
+							href="https://www.louisvolant.com"
+							target="_blank"
+							rel="noopener noreferrer">Personal Page</a
+						>
+						<span class="footer-sep" aria-hidden="true">|</span>
+						<a
+							href="https://www.louisvolant.com/portfolio"
+							target="_blank"
+							rel="noopener noreferrer">Portfolio</a
+						>
 					</p>
 					<div class="theme-switcher">
 						<button
@@ -738,6 +750,11 @@ const isLoggedIn = !!Astro.locals.user;
 
 			.footer-copyright a {
 				color: var(--color-text-secondary);
+			}
+
+			.footer-sep {
+				margin: 0 var(--spacing-2);
+				color: var(--color-border);
 			}
 
 			/* Theme switcher */
