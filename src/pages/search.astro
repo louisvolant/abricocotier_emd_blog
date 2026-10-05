@@ -23,7 +23,11 @@ const { items: results } = query
 		<h1 class="search-title">Search</h1>
 
 		<form method="get" action="/search" class="search-form">
+			<label for="site-search-query" class="visually-hidden"
+				>Search blog posts</label
+			>
 			<input
+				id="site-search-query"
 				type="search"
 				name="q"
 				value={query}
@@ -80,6 +84,18 @@ const { items: results } = query
 	.search-title {
 		font-size: var(--font-size-2xl);
 		margin-bottom: var(--spacing-6);
+	}
+
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.search-form {
