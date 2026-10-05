@@ -2,7 +2,7 @@
 import {
 	getEmDashCollection,
 	getTermsForEntries,
-	getSiteSettings,
+	getSiteSettingsWithCacheHint,
 } from "emdash";
 import { Image } from "emdash/ui";
 import Base from "../layouts/Base.astro";
@@ -14,16 +14,19 @@ import { resolveBlogSiteIdentity } from "../utils/site-identity";
 // instead of fetching every post and discarding the tail in JS.
 const POSTS_PER_PAGE = 7;
 
-const [{ entries: posts, cacheHint }, settings] = await Promise.all([
+const [{ entries: posts, cacheHint }, settingsResult] = await Promise.all([
 	getEmDashCollection("posts", {
 		orderBy: { published_at: "desc" },
 		limit: POSTS_PER_PAGE + 1, // +1 to detect "view all" need
 	}),
-	getSiteSettings(),
+	getSiteSettingsWithCacheHint(),
 ]);
-const { siteTitle, siteTagline } = resolveBlogSiteIdentity(settings);
+const { siteTitle, siteTagline } = resolveBlogSiteIdentity(settingsResult.data);
 
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+if (Astro.cache?.enabled) {
+	Astro.cache.set(cacheHint);
+	Astro.cache.set(settingsResult.cacheHint);
+}
 
 // Trim the lookahead post used to detect overflow
 const visiblePosts = posts.slice(0, POSTS_PER_PAGE);

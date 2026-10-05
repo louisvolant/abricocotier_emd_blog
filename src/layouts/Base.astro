@@ -1,5 +1,9 @@
 ---
-import { getMenu, getEmDashCollection, getSiteSettings } from "emdash";
+import {
+	getMenuWithCacheHint,
+	getEmDashCollection,
+	getSiteSettingsWithCacheHint,
+} from "emdash";
 import {
 	WidgetArea,
 	EmDashHead,
@@ -41,20 +45,36 @@ const {
 	author,
 	content,
 } = Astro.props;
-const { siteTitle, siteTagline, siteLogo } = resolveBlogSiteIdentity(await getSiteSettings());
+const [settingsResult, menuResult, socialMenuResult, pagesResult] = await Promise.all([
+	getSiteSettingsWithCacheHint(),
+	getMenuWithCacheHint("primary"),
+	getMenuWithCacheHint("social"),
+	getEmDashCollection("pages"),
+]);
+
+// Each helper returns its own edge-cache hint so the layout can be purged
+// when the settings, a menu, or a page changes.
+if (Astro.cache?.enabled) {
+	Astro.cache.set(settingsResult.cacheHint);
+	Astro.cache.set(menuResult.cacheHint);
+	Astro.cache.set(socialMenuResult.cacheHint);
+	Astro.cache.set(pagesResult.cacheHint);
+}
+
+const { siteTitle, siteTagline, siteLogo } = resolveBlogSiteIdentity(settingsResult.data);
 // If title already includes site title (from getSeoMeta), use as-is
 const fullTitle = title.includes(siteTitle) ? title : `${title} — ${siteTitle}`;
 
-// Fetch primary menu defined in seed
-const menu = await getMenu("primary");
+// Primary menu defined in seed
+const menu = menuResult.data;
 
 // Optional "social" menu. If a site defines a `social` menu in its seed,
 // it'll render in the footer's "Connect" column. Otherwise that column
 // just shows RSS, avoiding duplication with the "Navigate" column above.
-const socialMenu = await getMenu("social");
+const socialMenu = socialMenuResult.data;
 
-// Fetch pages for footer
-const { entries: pages } = await getEmDashCollection("pages");
+// Pages listed in the footer
+const pages = pagesResult.entries;
 
 // Build public page context for plugin contributions
 // SEO data is passed here and rendered securely by EmDashHead
