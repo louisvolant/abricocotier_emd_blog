@@ -21,7 +21,10 @@ export default defineConfig({
 			plugins: [formsPlugin()],
 			sandboxed: [webhookNotifier],
 			sandboxRunner: sandbox(),
-			marketplace: "https://marketplace.emdashcms.com",
+			// The legacy `marketplace` option is deprecated in EmDash 1.x.
+			// Use the plugin registry instead; it is the default when a
+			// sandbox runner is configured, but we set it explicitly here.
+			registry: "https://registry.emdashcms.com",
 		}),
 	],
 	fonts: [
