@@ -1,6 +1,6 @@
 # Abricocotier v2
 
-Personal blog built with [EmDash 1.1](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
+Personal blog built with [EmDash 1.2](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
 
 ## What's Included
 
@@ -37,7 +37,7 @@ The admin UI lives at `/_emdash/admin`.
 - **Database:** D1 (`abricocotier-v2-d1`)
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
 - **Framework:** Astro with `@astrojs/cloudflare`
-- **CMS:** EmDash `1.1.0` with `@emdash-cms/cloudflare` `1.1.0`
+- **CMS:** EmDash `1.2.0` with `@emdash-cms/cloudflare` `1.2.0`
 
 ## Local Development
 
@@ -72,6 +72,8 @@ pnpm build
 ```
 
 `emdash` and `@emdash-cms/cloudflare` are released in lockstep and must share the same version. Pending core migrations run on the first request after the new build is deployed.
+
+When editing `seed/seed.json`, widget options belong under `props`. Since EmDash 1.2, a widget's `settings` key is ignored during seeding; validate the file with `pnpm exec emdash seed --validate`.
 
 ## Manual Deploy
 
