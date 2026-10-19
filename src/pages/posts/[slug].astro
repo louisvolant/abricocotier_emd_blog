@@ -17,6 +17,11 @@ import Base from "../../layouts/Base.astro";
 import PostCard from "../../components/PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
 import { resolveBlogSiteIdentity } from "../../utils/site-identity";
+import {
+	COMMENT_DATE_LOCALE,
+	COMMENT_FORM_LABELS,
+	COMMENT_LIST_LABELS,
+} from "../../utils/comment-labels";
 
 const slug = decodeSlug(Astro.params.slug);
 
@@ -231,9 +236,21 @@ const publishDate =
 					<PortableText value={post.data.content} />
 				</div>
 
+				{/* Comment dates are formatted in the site's language, and the
+				    built-in English wording is replaced by French labels. */}
 				<div class="article-comments">
-					<Comments collection="posts" contentId={post.data.id} threaded />
-					<CommentForm collection="posts" contentId={post.data.id} />
+					<Comments
+						collection="posts"
+						contentId={post.data.id}
+						threaded
+						locale={COMMENT_DATE_LOCALE}
+						labels={COMMENT_LIST_LABELS}
+					/>
+					<CommentForm
+						collection="posts"
+						contentId={post.data.id}
+						labels={COMMENT_FORM_LABELS}
+					/>
 				</div>
 			</div>
 

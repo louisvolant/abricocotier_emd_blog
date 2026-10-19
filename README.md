@@ -12,6 +12,7 @@ Personal blog built with [EmDash 1.3.1](https://github.com/emdash-cms/emdash) (A
 - SEO metadata and JSON-LD, including per-page metadata for static pages
 - Dark/light mode
 - In-context visual editing for signed-in editors
+- French comment UI (labels, statuses and dates) on post pages
 - Footer links to the author's Personal Page and Portfolio next to the "Powered by EmDash" credit
 - Forms plugin and sandboxed webhook notifier
 - Plugin registry support (`registry.emdashcms.com`)
@@ -30,6 +31,16 @@ Personal blog built with [EmDash 1.3.1](https://github.com/emdash-cms/emdash) (A
 | 404 | fallback |
 
 The admin UI lives at `/_emdash/admin`.
+
+## Comments
+
+`Comments` and `CommentForm` from `emdash/ui/comments` ship English text and format dates in `en-US`. EmDash 1.2 added a `labels` prop to both components and a `locale` prop to `Comments`, and `src/pages/posts/[slug].astro` uses them so a French reader never sees an English label next to their own comment:
+
+- `src/utils/comment-labels.ts` holds the French wording and `COMMENT_DATE_LOCALE`.
+- `COMMENT_LIST_LABELS` covers `Comments`: the `heading` callback receives the approved comment count, so 0, 1 and *n* comments each read correctly in French.
+- `COMMENT_FORM_LABELS` covers every `CommentForm` key, including the two different success messages — `published` when a comment is approved immediately, `pending` when it waits for moderation.
+
+A key left out of `labels` is not an error: the component silently falls back to its English default. `test/comment-labels.test.mjs` asserts the full key set and rejects any value that is still an English default.
 
 ## Infrastructure
 
