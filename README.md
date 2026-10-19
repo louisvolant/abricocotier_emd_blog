@@ -55,6 +55,23 @@ A key left out of `labels` is not an error: the component silently falls back to
 - **CMS:** EmDash `1.3.1` with `@emdash-cms/cloudflare` `1.3.1`
 - **Database options:** `d1({ binding: "DB", session: "auto", coalesce: true })` — reads use the D1 Sessions API so anonymous visitors can be served by the nearest replica, and `coalesce` batches the reads of one request into a single round trip (EmDash 1.3 skips its start-of-request settings/menu/widget/taxonomy preload without it). Because it is experimental, a read and a write started together may run write-first: await a read before a write that must not affect it. See [Read replicas](https://docs.emdashcms.com/deployment/database/#read-replicas).
 
+## Seed
+
+`seed/seed.json` declares the content model (collections, taxonomies, bylines, menus, widget areas) and the demo content a fresh site is set up with. `emdash seed --validate` checks it, and `emdash seed` applies it.
+
+Widget options belong under `props`. EmDash's schema still accepts `settings`, but it is ignored when the seed is applied — and since 1.2 the command warns about it — so options written there are silently dropped. The sidebar widgets therefore read:
+
+```json
+{
+  "type": "component",
+  "componentId": "core:recent-posts",
+  "title": "Recent Posts",
+  "props": { "count": 5, "showDate": true, "urlTemplate": "/posts/:slug" }
+}
+```
+
+`urlTemplate` is new in 1.2 and takes the same `:collection`, `:id`, `:slug` and `:path` tokens as LiveSearch's `routeMap`. Without it the widget links to `/:slug`, which 404s on this site because posts live under `/posts/:slug`. `test/seed-widgets.test.mjs` keeps every widget on `props` and checks the templates against the routes the site serves.
+
 ## Local Development
 
 ```bash
