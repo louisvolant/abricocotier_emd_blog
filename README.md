@@ -49,7 +49,7 @@ A key left out of `labels` is not an error: the component silently falls back to
 
 ## Infrastructure
 
-- **Runtime:** Cloudflare Workers (worker name: `abricocotier-v2`)
+- **Runtime:** Cloudflare Workers (worker name: `abricocotier-emd-blog`)
 - **Database:** D1 (`abricocotier-v2-d1`)
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
 - **Framework:** Astro with `@astrojs/cloudflare`
