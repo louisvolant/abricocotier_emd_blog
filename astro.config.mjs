@@ -16,6 +16,13 @@ export default defineConfig({
 	integrations: [
 		react(),
 		emdash({
+			// The admin is only used in French. Listing `fr` leaves the other 30
+			// catalogs out of the admin bundle, which keeps it small; `en` is always
+			// shipped as the fallback for users whose browser asks for a language
+			// that is not listed. An unknown code fails the build, so
+			// `test/admin-locales.test.mjs` checks this list against the catalogs
+			// EmDash actually ships.
+			admin: { locales: ["fr"] },
 			// `emdash` and `@emdash-cms/cloudflare` are released in lockstep: the
 			// adapter depends on one exact `emdash` version. Installing a range that
 			// resolves to two different copies makes the adapter run against a second

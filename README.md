@@ -42,6 +42,10 @@ The admin UI lives at `/_emdash/admin`.
 
 A key left out of `labels` is not an error: the component silently falls back to its English default. `test/comment-labels.test.mjs` asserts the full key set and rejects any value that is still an English default.
 
+## Admin Interface
+
+`astro.config.mjs` sets `admin: { locales: ["fr"] }`. EmDash only bundles the catalogs that are listed, which keeps the admin small; English is always shipped as the fallback for users whose browser asks for a language that is not listed, so there is no reason to include it here. Adding a language that EmDash does not ship fails the build rather than warning — `test/admin-locales.test.mjs` checks the configured codes against the catalogs in the installed `@emdash-cms/admin` package.
+
 ## Infrastructure
 
 - **Runtime:** Cloudflare Workers (worker name: `abricocotier-v2`)
