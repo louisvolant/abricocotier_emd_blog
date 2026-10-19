@@ -116,13 +116,24 @@ pnpm build
 
 This site runs on Cloudflare Workers with `session: "auto"`, so pending core migrations normally run on the first request after a new build is deployed. **Upgrading from EmDash 0.38 or earlier is the exception**: the data migrations added since then rewrite every entry and revision, which is too much work for a single request. From 1.3.1 on, the Worker answers `503` instead of serving content without it, and never starts that migration itself.
 
-Apply those migrations from the CLI, before deploying the new build:
+Check first — this is read-only and reports applied, pending and unknown migrations:
 
 ```bash
-pnpm emdash migrate
+pnpm build                              # writes the manifest the command reads
+pnpm emdash migrate --status --wrangler-config wrangler.jsonc
 ```
 
-The command resumes from the last written batch if it is interrupted, so it is safe to re-run. If the Worker logs a stuck migration lock, release it first with `pnpm emdash migrate --release-lock`; use `--take-over-lock <id>` to apply under a lock you cannot release from the admin. See [Core migrations](https://docs.emdashcms.com/deployment/core-migrations/).
+If it reports `Pending: none`, there is nothing to apply. Otherwise:
+
+```bash
+pnpm emdash migrate --wrangler-config wrangler.jsonc
+```
+
+`--wrangler-config` is **required**. EmDash does not discover `wrangler.jsonc` on its own: without the flag it fails with `D1 migrations require an explicit database selector or Wrangler config`. With it, the target is resolved from the `DB` binding and the remote database name is checked against `database_name`, so a mismatch aborts. `--d1 <uuid-or-name>` is the alternative when you want to skip the config entirely.
+
+The command needs credentials in the environment — it reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and does **not** reuse the OAuth token stored by `wrangler login`. Never commit them.
+
+The command resumes from the last written batch if it is interrupted, so it is safe to re-run. If the Worker logs a stuck migration lock, release it first with `--release-lock`; use `--take-over-lock <id>` to apply under a lock you cannot release from the admin. `--check` applies nothing and exits non-zero when work remains, which makes it a good post-deploy gate. See [Core migrations](https://docs.emdashcms.com/deployment/core-migrations/).
 
 ## Manual Deploy
 
