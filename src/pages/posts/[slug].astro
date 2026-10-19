@@ -600,6 +600,27 @@ const publishDate =
 		border-radius: var(--radius-lg);
 	}
 
+	/*
+	 * EmDash 1.2 added a built-in video block, which `PortableText` renders with
+	 * the browser's own player and its caption. A raw <video> is inline by
+	 * default: it sits on the text baseline and overflows the 680px column at
+	 * its intrinsic width, so block it and cap it to the reading column.
+	 */
+	.article-content :global(video) {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		height: auto;
+		margin: 2em 0;
+		border-radius: var(--radius-lg);
+		background: var(--color-surface);
+	}
+
+	/* An empty video block saves without an asset and renders nothing. */
+	.article-content :global(video:empty) {
+		display: none;
+	}
+
 	.article-content :global(hr) {
 		margin: 3em 0;
 		border: none;

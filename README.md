@@ -7,6 +7,7 @@ Personal blog built with [EmDash 1.3.1](https://github.com/emdash-cms/emdash) (A
 - Featured post hero on the homepage
 - Post archive with reading time estimates
 - Category and tag archives
+- Video blocks in the article body, sized to the reading column
 - Full-text search
 - RSS feed
 - SEO metadata and JSON-LD, including per-page metadata for static pages
