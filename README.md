@@ -38,6 +38,7 @@ The admin UI lives at `/_emdash/admin`.
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
 - **Framework:** Astro with `@astrojs/cloudflare`
 - **CMS:** EmDash `1.3.1` with `@emdash-cms/cloudflare` `1.3.1`
+- **Database options:** `d1({ binding: "DB", session: "auto", coalesce: true })` — reads use the D1 Sessions API so anonymous visitors can be served by the nearest replica, and `coalesce` batches the reads of one request into a single round trip (EmDash 1.3 skips its start-of-request settings/menu/widget/taxonomy preload without it). Because it is experimental, a read and a write started together may run write-first: await a read before a write that must not affect it. See [Read replicas](https://docs.emdashcms.com/deployment/database/#read-replicas).
 
 ## Local Development
 

@@ -21,7 +21,13 @@ export default defineConfig({
 			// resolves to two different copies makes the adapter run against a second
 			// copy of the core, so both entries below must stay identical.
 			// `test/emdash-lockstep.test.mjs` enforces this.
-			database: d1({ binding: "DB", session: "auto" }),
+			// `coalesce` batches the reads a request issues together into one D1
+			// round trip. Without it, a session runs its queries one at a time and
+			// EmDash skips its start-of-request preload of settings, menus, widget
+			// areas and taxonomy terms, which slows down every logged-out page
+			// view. Caveat: a read and a write started together may run write-first,
+			// so await a read before a write that must not affect it.
+			database: d1({ binding: "DB", session: "auto", coalesce: true }),
 			storage: r2({ binding: "MEDIA" }),
 			plugins: [formsPlugin()],
 			sandboxed: [webhookNotifier],
