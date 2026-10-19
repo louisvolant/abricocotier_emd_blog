@@ -1,6 +1,6 @@
 # Abricocotier v2
 
-Personal blog built with [EmDash 1.1](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
+Personal blog built with [EmDash 1.3.1](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
 
 ## What's Included
 
@@ -37,16 +37,20 @@ The admin UI lives at `/_emdash/admin`.
 - **Database:** D1 (`abricocotier-v2-d1`)
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
 - **Framework:** Astro with `@astrojs/cloudflare`
-- **CMS:** EmDash `1.1.0` with `@emdash-cms/cloudflare` `1.1.0`
+- **CMS:** EmDash `1.3.1` with `@emdash-cms/cloudflare` `1.3.1`
 
 ## Local Development
 
 ```bash
 pnpm install
 pnpm dev
+pnpm test      # node --test, no test framework to install
+pnpm typecheck # astro check
 ```
 
 The admin is available at `http://localhost:4321/_emdash/admin`. Copy `.env.example` to `.env` and set a real `EMDASH_ENCRYPTION_KEY` (a key is generated automatically at scaffold time).
+
+Tests live in `test/` and run on Node's built-in runner. They cover what a build cannot: the EmDash/D1 configuration, the lockstep package versions, the widget seed, and the label and stylesheet contracts the templates rely on.
 
 ## Deployment
 
@@ -68,10 +72,23 @@ Update the EmDash packages together and rebuild:
 
 ```bash
 pnpm up --latest emdash @emdash-cms/cloudflare @emdash-cms/plugin-forms @emdash-cms/plugin-webhook-notifier
+pnpm test
 pnpm build
 ```
 
-`emdash` and `@emdash-cms/cloudflare` are released in lockstep and must share the same version. Pending core migrations run on the first request after the new build is deployed.
+`emdash` and `@emdash-cms/cloudflare` are released in lockstep and must share the same version: the adapter pins one exact `emdash` release, so a drifting range installs a second copy of the core that the adapter never runs against. EmDash warns about it during `astro build` and `astro dev`; `test/emdash-lockstep.test.mjs` fails the same drift before that.
+
+### Migrating the database
+
+This site runs on Cloudflare Workers with `session: "auto"`, so pending core migrations normally run on the first request after a new build is deployed. **Upgrading from EmDash 0.38 or earlier is the exception**: the data migrations added since then rewrite every entry and revision, which is too much work for a single request. From 1.3.1 on, the Worker answers `503` instead of serving content without it, and never starts that migration itself.
+
+Apply those migrations from the CLI, before deploying the new build:
+
+```bash
+pnpm emdash migrate
+```
+
+The command resumes from the last written batch if it is interrupted, so it is safe to re-run. If the Worker logs a stuck migration lock, release it first with `pnpm emdash migrate --release-lock`; use `--take-over-lock <id>` to apply under a lock you cannot release from the admin. See [Core migrations](https://docs.emdashcms.com/deployment/core-migrations/).
 
 ## Manual Deploy
 

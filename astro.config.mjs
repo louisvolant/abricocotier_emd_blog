@@ -16,6 +16,11 @@ export default defineConfig({
 	integrations: [
 		react(),
 		emdash({
+			// `emdash` and `@emdash-cms/cloudflare` are released in lockstep: the
+			// adapter depends on one exact `emdash` version. Installing a range that
+			// resolves to two different copies makes the adapter run against a second
+			// copy of the core, so both entries below must stay identical.
+			// `test/emdash-lockstep.test.mjs` enforces this.
 			database: d1({ binding: "DB", session: "auto" }),
 			storage: r2({ binding: "MEDIA" }),
 			plugins: [formsPlugin()],
