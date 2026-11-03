@@ -21,8 +21,8 @@
 	],
 	// Sandboxed plugins require Worker Loader, available on Workers paid plans. Uncomment to enable:
 	// "worker_loaders": [{ "binding": "LOADER" }],
-	// General maintenance cron trigger
+	// General maintenance cron trigger (every 30 minutes)
 	"triggers": {
-		"crons": ["* * * * *"],
+		"crons": ["*/30 * * * *"],
 	},
 }
