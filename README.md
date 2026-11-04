@@ -1,6 +1,6 @@
 # Abricocotier v2
 
-Personal blog built with [EmDash 1.3.1](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
+Personal blog built with [EmDash 1.4.0](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
 
 ## What's Included
 
@@ -53,7 +53,7 @@ A key left out of `labels` is not an error: the component silently falls back to
 - **Database:** D1 (`abricocotier-v2-d1`)
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
 - **Framework:** Astro with `@astrojs/cloudflare`
-- **CMS:** EmDash `1.3.1` with `@emdash-cms/cloudflare` `1.3.1`
+- **CMS:** EmDash `1.4.0` with `@emdash-cms/cloudflare` `1.4.0`
 - **Database options:** `d1({ binding: "DB", session: "auto", coalesce: true })` — reads use the D1 Sessions API so anonymous visitors can be served by the nearest replica, and `coalesce` batches the reads of one request into a single round trip (EmDash 1.3 skips its start-of-request settings/menu/widget/taxonomy preload without it). Because it is experimental, a read and a write started together may run write-first: await a read before a write that must not affect it. See [Read replicas](https://docs.emdashcms.com/deployment/database/#read-replicas).
 
 ## Seed
