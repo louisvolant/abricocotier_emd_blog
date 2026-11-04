@@ -2,30 +2,23 @@
 import {
 	getEmDashCollection,
 	getTermsForEntries,
-	getSiteSettingsWithCacheHint,
 } from "emdash";
 import { Image } from "emdash/ui";
 import Base from "../layouts/Base.astro";
 import PostCard from "../components/PostCard.astro";
 import { getReadingTime } from "../utils/reading-time";
-import { resolveBlogSiteIdentity } from "../utils/site-identity";
 
 // Limit to what we render (1 featured + 6 grid). The DB does the slicing
 // instead of fetching every post and discarding the tail in JS.
 const POSTS_PER_PAGE = 7;
 
-const [{ entries: posts, cacheHint }, settingsResult] = await Promise.all([
-	getEmDashCollection("posts", {
-		orderBy: { published_at: "desc" },
-		limit: POSTS_PER_PAGE + 1, // +1 to detect "view all" need
-	}),
-	getSiteSettingsWithCacheHint(),
-]);
-const { siteTitle, siteTagline } = resolveBlogSiteIdentity(settingsResult.data);
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+	orderBy: { published_at: "desc" },
+	limit: POSTS_PER_PAGE + 1, // +1 to detect "view all" need
+});
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(cacheHint);
-	Astro.cache.set(settingsResult.cacheHint);
 }
 
 // Trim the lookahead post used to detect overflow
@@ -76,7 +69,7 @@ function formatDate(date: Date | null | undefined) {
 }
 ---
 
-<Base title={siteTitle} description={siteTagline}>
+<Base>
 	{
 		posts.length === 0 ? (
 			<section class="empty-state">

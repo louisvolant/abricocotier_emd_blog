@@ -5,7 +5,6 @@ import {
 	getTermsForEntries,
 	getSeoMeta,
 	decodeSlug,
-	getSiteSettings,
 } from "emdash";
 import {
 	Image,
@@ -16,7 +15,6 @@ import { Comments, CommentForm } from "emdash/ui/comments";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../../components/PostCard.astro";
 import { getReadingTime } from "../../utils/reading-time";
-import { resolveBlogSiteIdentity } from "../../utils/site-identity";
 import {
 	COMMENT_DATE_LOCALE,
 	COMMENT_FORM_LABELS,
@@ -59,11 +57,9 @@ function getImageUrl(img: unknown): string | undefined {
 	return undefined;
 }
 const featuredImageUrl = getImageUrl(post.data.featured_image);
-const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
 
 // Generate SEO meta from content
 const seo = getSeoMeta(post, {
-	siteTitle,
 	siteUrl: Astro.url.origin,
 	path: Astro.url.pathname.replace(/\/$/, ""),
 	defaultOgImage: featuredImageUrl,

@@ -18,7 +18,7 @@ import "../styles/tokens.css";
 import "../styles/theme.css";
 
 interface Props {
-	title: string;
+	title?: string;
 	pageTitle?: string | null;
 	description?: string | null;
 	image?: string | null;
@@ -62,8 +62,13 @@ if (Astro.cache?.enabled) {
 }
 
 const { siteTitle, siteTagline, siteLogo } = resolveBlogSiteIdentity(settingsResult.data);
-// If title already includes site title (from getSeoMeta), use as-is
-const fullTitle = title.includes(siteTitle) ? title : `${title} — ${siteTitle}`;
+const pageDescription = description ?? siteTagline;
+// If title already includes site title (from getSeoMeta), use as-is; fallback to siteTitle — siteTagline
+const fullTitle = title
+	? title.includes(siteTitle)
+		? title
+		: `${title} — ${siteTitle}`
+	: `${siteTitle} — ${siteTagline}`;
 
 // Primary menu defined in seed
 const menu = menuResult.data;
@@ -83,8 +88,8 @@ const pageCtx = createPublicPageContext({
 	kind: content ? "content" : "custom",
 	pageType: type,
 	title: fullTitle,
-	pageTitle: pageTitle ?? title,
-	description,
+	pageTitle: pageTitle ?? title ?? siteTitle,
+	description: pageDescription,
 	canonical,
 	image,
 	content,
