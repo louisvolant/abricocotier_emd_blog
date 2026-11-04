@@ -49,6 +49,7 @@ ${items}
 		headers: {
 			"Content-Type": "application/rss+xml; charset=utf-8",
 			"Cache-Control": "public, max-age=3600",
+			"Cloudflare-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=600",
 		},
 	});
 };

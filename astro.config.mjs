@@ -1,4 +1,5 @@
 import cloudflare from "@astrojs/cloudflare";
+import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import react from "@astrojs/react";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { formsPlugin } from "@emdash-cms/plugin-forms";
@@ -9,6 +10,19 @@ import emdash from "emdash/astro";
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
+	cache: {
+		provider: cacheCloudflare(),
+	},
+	routeRules: {
+		"/": { maxAge: 3600, swr: 600 },
+		"/posts": { maxAge: 3600, swr: 600 },
+		"/posts/[...slug]": { maxAge: 86400, swr: 3600 },
+		"/pages/[...slug]": { maxAge: 86400, swr: 3600 },
+		"/category/[...slug]": { maxAge: 86400, swr: 3600 },
+		"/tag/[...slug]": { maxAge: 86400, swr: 3600 },
+		"/rss.xml": { maxAge: 3600, swr: 600 },
+		"/_emdash/api/media/file/[...key]": { maxAge: 2592000, swr: 86400 },
+	},
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
