@@ -49,7 +49,7 @@ const [settingsResult, menuResult, socialMenuResult, pagesResult] = await Promis
 	getSiteSettingsWithCacheHint(),
 	getMenuWithCacheHint("primary"),
 	getMenuWithCacheHint("social"),
-	getEmDashCollection("pages"),
+	getEmDashCollection("pages", { limit: 10 }),
 ]);
 
 // Each helper returns its own edge-cache hint so the layout can be purged
@@ -180,7 +180,7 @@ const isLoggedIn = !!Astro.locals.user;
 							<li><a href="/">Home</a></li>
 							<li><a href="/posts">All Posts</a></li>
 							{
-								pages.slice(0, 3).map((page) => (
+								pages.slice(0, 10).map((page) => (
 									<li>
 										<a href={`/pages/${page.data.slug || page.id}`}>
 											{page.data.title}
