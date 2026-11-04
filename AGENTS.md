@@ -41,6 +41,11 @@ This template ships with `.mcp.json`, `.cursor/mcp.json`, and `.vscode/mcp.json`
 - `entry.id` is the slug (for URLs). `entry.data.id` is the database ULID (for API calls like `getEntryTerms`).
 - When Astro's cache is enabled, pass content-query hints to `Astro.cache.set(cacheHint)`. Use the `WithCacheHint` variants for site settings, menus, taxonomies, and widget areas rendered by cached routes.
 - Taxonomy names in queries must match the seed's `"name"` field exactly (e.g., `"category"` not `"categories"`).
+- **Git & Commit Workflow:**
+  - All commit messages, code comments, and documentation must be written in English.
+  - One commit per feature: Create a concise one-liner commit for each individual feature or improvement. Never combine multiple features into the same commit.
+  - Atomic scope: Every commit must include all related code, code comments, tests, and documentation (`README.md`) updates.
+  - Push commits to the remote repository once feature work is complete.
 
 ## This Template
 

@@ -86,6 +86,13 @@ The admin is available at `http://localhost:4321/_emdash/admin`. Copy `.env.exam
 
 Tests live in `test/` and run on Node's built-in runner. They cover what a build cannot: the EmDash/D1 configuration, the lockstep package versions, the widget seed, and the label and stylesheet contracts the templates rely on.
 
+## Development & Commit Guidelines
+
+- **Language:** All commit messages, code comments, and documentation (`README.md`) must be written in English.
+- **One commit per feature:** Create a concise one-liner commit for each individual feature or improvement. Never combine multiple features into the same commit.
+- **Atomic commits:** Each feature commit must include all related code changes, code comments, tests, and corresponding `README.md` updates.
+- **Pushing:** Push commits to the remote repository once the feature is completed.
+
 ## Deployment
 
 The repo is connected to Cloudflare Workers Builds: pushing to the tracked branch builds (`pnpm build`) and deploys automatically. No local `wrangler deploy` needed.
