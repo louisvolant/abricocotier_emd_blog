@@ -17,3 +17,23 @@ minimumReleaseAgeExclude:
   - emdash
   - "@emdash-cms/*"
 blockExoticSubdeps: true
+
+overrides:
+  dompurify: ">=3.4.17"
+  fast-uri: ">=3.1.9"
+  body-parser: ">=2.4.0"
+  "@modelcontextprotocol/sdk": ">=1.32.0"
+  hono: ">=4.13.11"
+  "@hono/node-server": ">=2.1.3"
+  devalue: ">=5.9.3"
+  smol-toml: ">=1.9.0"
+  source-map-js: ">=1.2.2"
+  sharp: ">=0.35.5"
+  sanitize-html: ">=2.18.0"
+  vite: ">=8.3.5"
+  ip-address: ">=10.7.4"
+  zod: ">=4.6.7"
+  seroval: ">=1.6.11"
+  qs: ">=6.16.1"
+  "unifont>undici": ">=8.12.2"
+
