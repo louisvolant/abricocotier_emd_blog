@@ -5,7 +5,6 @@ import {
 	getTermsForEntries,
 	getSeoMeta,
 	decodeSlug,
-	getSiteSettings,
 } from "emdash";
 import { Image, PortableText, WidgetArea } from "emdash/ui";
 import { Comments, CommentForm } from "emdash/ui/comments";
@@ -14,7 +13,11 @@ import Byline from "../../components/Byline.astro";
 import PostCard from "../../components/PostCard.astro";
 import { formatDate } from "../../utils/locale";
 import { getReadingTime } from "../../utils/reading-time";
-import { resolveBlogSiteIdentity } from "../../utils/site-identity";
+import {
+	COMMENT_DATE_LOCALE,
+	COMMENT_FORM_LABELS,
+	COMMENT_LIST_LABELS,
+} from "../../utils/comment-labels";
 import "../../styles/prose.css";
 
 const slug = decodeSlug(Astro.params.slug);
@@ -53,11 +56,9 @@ function getImageUrl(img: unknown): string | undefined {
 	return undefined;
 }
 const featuredImageUrl = getImageUrl(post.data.featured_image);
-const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
 
 // Generate SEO meta from content
 const seo = getSeoMeta(post, {
-	siteTitle,
 	siteUrl: Astro.url.origin,
 	path: Astro.url.pathname.replace(/\/$/, ""),
 	defaultOgImage: featuredImageUrl,
@@ -239,8 +240,18 @@ const hasHeadings = (post.data.content ?? []).some(
 
 					<section class="post-comments" aria-labelledby="comments-title">
 						<h2 id="comments-title" class="eyebrow">Discussion</h2>
-						<Comments collection="posts" contentId={post.data.id} threaded />
-						<CommentForm collection="posts" contentId={post.data.id} />
+						<Comments
+							collection="posts"
+							contentId={post.data.id}
+							threaded
+							locale={COMMENT_DATE_LOCALE}
+							labels={COMMENT_LIST_LABELS}
+						/>
+						<CommentForm
+							collection="posts"
+							contentId={post.data.id}
+							labels={COMMENT_FORM_LABELS}
+						/>
 					</section>
 				</div>
 

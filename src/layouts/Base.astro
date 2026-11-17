@@ -1,5 +1,9 @@
 ---
-import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
+import {
+	getMenuWithCacheHint,
+	getEmDashCollection,
+	getSiteSettingsWithCacheHint,
+} from "emdash";
 import {
 	WidgetArea,
 	EmDashHead,
@@ -15,7 +19,7 @@ import "../styles/tokens.css";
 import "../styles/theme.css";
 
 interface Props {
-	title: string;
+	title?: string;
 	pageTitle?: string | null;
 	description?: string | null;
 	image?: string | null;
@@ -42,26 +46,49 @@ const {
 	author,
 	content,
 } = Astro.props;
-const [settingsResult, menuResult] = await Promise.all([
-	getSiteSettingsWithCacheHint(),
-	getMenuWithCacheHint("primary"),
-]);
+const [settingsResult, menuResult, socialMenuResult, pagesResult] =
+	await Promise.all([
+		getSiteSettingsWithCacheHint(),
+		getMenuWithCacheHint("primary"),
+		getMenuWithCacheHint("social"),
+		getEmDashCollection("pages", { limit: 10 }),
+	]);
+
+// Each helper returns its own edge-cache hint so the layout can be purged
+// when the settings, a menu, or a page changes.
 if (Astro.cache?.enabled) {
 	Astro.cache.set(settingsResult.cacheHint);
 	Astro.cache.set(menuResult.cacheHint);
+	Astro.cache.set(socialMenuResult.cacheHint);
+	Astro.cache.set(pagesResult.cacheHint);
 }
 
 const { siteTitle, siteTagline, siteLogo } = resolveBlogSiteIdentity(
 	settingsResult.data,
 );
-const titleIncludesSiteName =
-	title === siteTitle ||
-	title.endsWith(` | ${siteTitle}`) ||
-	title.endsWith(` — ${siteTitle}`);
-const fullTitle = titleIncludesSiteName ? title : `${title} — ${siteTitle}`;
+const pageDescription = description ?? siteTagline;
+// If title already includes site title (from getSeoMeta), use as-is;
+// otherwise fall back to "site title — tagline" on the home page.
+const titleIncludesSiteName = title
+	? title === siteTitle ||
+		title.endsWith(` | ${siteTitle}`) ||
+		title.endsWith(` — ${siteTitle}`)
+	: false;
+const fullTitle = title
+	? titleIncludesSiteName
+		? title
+		: `${title} — ${siteTitle}`
+	: `${siteTitle} — ${siteTagline}`;
 
 const menu = menuResult.data;
 const menuItems = menu?.items ?? [];
+
+// Optional "social" menu. If a site defines a `social` menu in its seed,
+// it renders in the footer's "Connect" column.
+const socialMenu = socialMenuResult.data;
+
+// Pages listed in the footer, capped so the query stays small.
+const pages = pagesResult.entries;
 
 // Build public page context for plugin contributions
 // SEO data is passed here and rendered securely by EmDashHead
@@ -70,8 +97,8 @@ const pageCtx = createPublicPageContext({
 	kind: content ? "content" : "custom",
 	pageType: type,
 	title: fullTitle,
-	pageTitle: pageTitle ?? title,
-	description,
+	pageTitle: pageTitle ?? title ?? siteTitle,
+	description: pageDescription,
 	canonical,
 	image,
 	content,
@@ -102,7 +129,7 @@ function navCurrent(url: string): "page" | "true" | undefined {
 	return undefined;
 }
 
-const lang = getSiteLocale() ?? "en";
+const lang = getSiteLocale() ?? "fr";
 const monogram = [...siteTitle.trim()][0]?.toUpperCase() ?? "";
 const year = new Date().getFullYear();
 ---
@@ -282,35 +309,42 @@ const year = new Date().getFullYear();
 					</a>
 					{siteTagline && <p class="site-footer__tagline">{siteTagline}</p>}
 				</div>
-				{
-					menuItems.length > 0 && (
-						<nav class="site-footer__col" aria-labelledby="footer-navigate">
-							<h2 id="footer-navigate" class="eyebrow">
-								Navigate
-							</h2>
-							<ul class="site-footer__links">
-								{menuItems.map((item) => (
-									<li>
-										<a
-											href={item.url}
-											target={item.target}
-											rel={
-												item.target === "_blank"
-													? "noopener noreferrer"
-													: undefined
-											}
-										>
-											{item.label}
-										</a>
-									</li>
-								))}
-							</ul>
-						</nav>
-					)
-				}
+				<nav class="site-footer__col" aria-labelledby="footer-navigate">
+					<h2 id="footer-navigate" class="eyebrow">Navigate</h2>
+					<ul class="site-footer__links">
+						<li><a href="/">Home</a></li>
+						<li><a href="/posts">All Posts</a></li>
+						{
+							pages.map((page) => (
+								<li>
+									<a href={`/pages/${page.data.slug || page.id}`}>
+										{page.data.title}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
 				<div class="site-footer__col">
 					<h2 class="eyebrow">Connect</h2>
 					<ul class="site-footer__links">
+						{
+							socialMenu?.items.map((item) => (
+								<li>
+									<a
+										href={item.url}
+										target={item.target}
+										rel={
+											item.target === "_blank"
+												? "noopener noreferrer"
+												: undefined
+										}
+									>
+										{item.label}
+									</a>
+								</li>
+							))
+						}
 						<li>
 							<a href="/rss.xml">
 								<svg

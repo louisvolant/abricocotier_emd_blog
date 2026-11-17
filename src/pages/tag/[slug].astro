@@ -7,7 +7,6 @@ import {
 } from "emdash";
 import Base from "../../layouts/Base.astro";
 import PostCard from "../../components/PostCard.astro";
-import Pagination from "../../components/Pagination.astro";
 
 const slug = decodeSlug(Astro.params.slug);
 const termsResult = await getTaxonomyTermsWithCacheHint("tag", {
@@ -19,16 +18,9 @@ if (!term) {
 	return Astro.rewrite("/404");
 }
 
-const cursor = Astro.url.searchParams.get("cursor") || undefined;
-const {
-	entries: posts,
-	cacheHint,
-	nextCursor,
-} = await getEmDashCollection("posts", {
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
 	where: { tag: term.slug },
 	orderBy: { published_at: "desc" },
-	limit: 20,
-	cursor,
 });
 
 if (Astro.cache?.enabled) {
@@ -61,7 +53,8 @@ const filteredPosts = posts.map((post) => ({
 				<p class="eyebrow">Tag</p>
 				<h1 class="intro__title">{term.label}</h1>
 				<p class="intro__lead">
-					{term.description || `Posts tagged ${term.label}, newest first.`}
+					{filteredPosts.length}
+					{filteredPosts.length === 1 ? "post" : "posts"}
 				</p>
 			</div>
 			<a href="/posts" class="arrow-link">
@@ -86,37 +79,23 @@ const filteredPosts = posts.map((post) => ({
 		<div class="frame">
 			{
 				filteredPosts.length > 0 ? (
-					<>
-						<div class="post-grid">
-							{filteredPosts.map(({ post, tags }) => (
-								<PostCard
-									post={post}
-									tags={tags.map((t) => ({ slug: t.slug, label: t.label }))}
-								/>
-							))}
-						</div>
-						<Pagination
-							basePath={`/tag/${term.slug}`}
-							cursor={cursor}
-							nextCursor={nextCursor}
-						/>
-					</>
+					<div class="post-grid">
+						{filteredPosts.map(({ post, tags }) => (
+							<PostCard
+								post={post}
+								tags={tags.map((t) => ({ slug: t.slug, label: t.label }))}
+							/>
+						))}
+					</div>
 				) : (
 					<div class="empty-state">
-						<h2 class="empty-state__title">
-							{cursor ? "No more posts" : "Nothing here yet"}
-						</h2>
+						<h2 class="empty-state__title">Nothing here yet</h2>
 						<p class="empty-state__text">
-							{cursor
-								? "This page is past the last post."
-								: `No posts have been tagged ${term.label} so far.`}
+							{`No posts have been tagged ${term.label} so far.`}
 						</p>
 						<div class="empty-state__actions">
-							<a
-								href={cursor ? `/tag/${term.slug}` : "/posts"}
-								class="btn btn--ghost"
-							>
-								{cursor ? "Back to the first page" : "Browse all posts"}
+							<a href="/posts" class="btn btn--ghost">
+								Browse all posts
 							</a>
 						</div>
 					</div>
