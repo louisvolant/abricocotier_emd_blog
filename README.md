@@ -1,22 +1,24 @@
 # Abricocotier v2
 
-Personal blog built with [EmDash 1.4.0](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
+Personal blog built with [EmDash 1.5.0](https://github.com/emdash-cms/emdash) (Astro-based CMS), deployed on Cloudflare Workers. Live at [v2.abricocotier.fr](https://v2.abricocotier.fr).
 
 ## What's Included
 
-- Featured post hero on the homepage
-- Post archive with reading time estimates
+- Framed editorial layout from the EmDash 1.5 blog template
+- Featured post card on the homepage and a latest-posts grid
+- Post archive with reading time estimates and article counts
 - Category and tag archives
 - Video blocks in the article body, sized to the reading column
 - Full-text search
 - RSS feed
 - SEO metadata and JSON-LD, including per-page metadata for static pages
-- Dark/light mode
+- Dark/light mode with a native `light-dark()` palette
 - In-context visual editing for signed-in editors
 - French comment UI (labels, statuses and dates) on post pages
-- Footer links to the author's Personal Page and Portfolio next to the "Powered by EmDash" credit
+- Footer links to the author's Personal Page, Portfolio, Former blog and Microblog
 - Forms plugin and sandboxed webhook notifier
 - Plugin registry support (`registry.emdashcms.com`)
+- Durable Object binding ready for EmDash co-editing rooms
 
 ## Pages
 
@@ -32,6 +34,12 @@ Personal blog built with [EmDash 1.4.0](https://github.com/emdash-cms/emdash) (A
 | 404 | fallback |
 
 The admin UI lives at `/_emdash/admin`.
+
+## Design
+
+The site uses the EmDash 1.5 blog template's framed editorial layout: hairline rails run down every page, sections are ruled off with a hairline, and cards are white on an off-white canvas. Inter carries the hierarchy, with JetBrains Mono for code and the small uppercase labels. The article page keeps the three-column reading view: a meta rail (authors, date, reading time), a 680px body column, and a rail with the table of contents and sidebar widgets.
+
+The palette is defined with `light-dark(<light>, <dark>)`. Astro's production build runs Lightning CSS, which otherwise rewrites those colours into variables tied to `prefers-color-scheme` and breaks the footer's manual theme switcher; `vite.css.lightningcss.exclude: Features.LightDark` in `astro.config.mjs` keeps them native.
 
 ## Comments
 
@@ -52,9 +60,12 @@ A key left out of `labels` is not an error: the component silently falls back to
 - **Runtime:** Cloudflare Workers (worker name: `abricocotier-emd-blog`)
 - **Database:** D1 (`abricocotier-v2-d1`)
 - **Storage:** R2 (`abricocotier-v2-r2`, bound as `MEDIA`)
+- **Co-editing:** Durable Objects (`EMDASH_ROOMS`, SQLite-backed `EmDashRoom`)
 - **Framework:** Astro with `@astrojs/cloudflare`
-- **CMS:** EmDash `1.4.0` with `@emdash-cms/cloudflare` `1.4.0`
+- **CMS:** EmDash `1.5.0` with `@emdash-cms/cloudflare` `1.5.0`
 - **Database options:** `d1({ binding: "DB", session: "auto", coalesce: true })` — reads use the D1 Sessions API so anonymous visitors can be served by the nearest replica, and `coalesce` batches the reads of one request into a single round trip (EmDash 1.3 skips its start-of-request settings/menu/widget/taxonomy preload without it). Because it is experimental, a read and a write started together may run write-first: await a read before a write that must not affect it. See [Read replicas](https://docs.emdashcms.com/deployment/database/#read-replicas).
+- **Theme build:** `lightningcss` is a dev dependency and `vite.css.lightningcss` excludes `Features.LightDark`, so the manual theme switcher keeps working in production.
+- **Rooms:** the Durable Object binding is declared, but co-editing stays off until `coEditing: true` is enabled in the EmDash integration.
 
 ## Seed
 
@@ -102,6 +113,7 @@ Configuration notes (see `wrangler.jsonc`):
 - `keep_vars: true` — environment variables and secrets set in the Cloudflare dashboard survive deployments.
 - `worker_loaders` is commented out (free plan). Sandboxed plugins (webhook notifier) need it on paid plans — re-enable if you upgrade.
 - The D1 binding is `DB`, the R2 binding is `MEDIA`.
+- `EMDASH_ROOMS` is a Durable Object binding for the `EmDashRoom` class. Co-editing stays off until `coEditing: true` is enabled.
 
 Plugins are resolved through the EmDash plugin registry (`registry.emdashcms.com`, configured in `astro.config.mjs`). The legacy `marketplace` option was deprecated in EmDash 1.x and is no longer used. `@emdash-cms/plugin-forms` runs as a native plugin; the webhook notifier runs sandboxed and is skipped while no Worker Loader binding is configured.
 
@@ -123,6 +135,8 @@ pnpm build
 
 This site runs on Cloudflare Workers with `session: "auto"`, so pending core migrations normally run on the first request after a new build is deployed. **Upgrading from EmDash 0.38 or earlier is the exception**: the data migrations added since then rewrite every entry and revision, which is too much work for a single request. From 1.3.1 on, the Worker answers `503` instead of serving content without it, and never starts that migration itself.
 
+EmDash 1.5 adds six migrations (`092`–`097`): plugin KV options, menu-item orphans, media-usage file URL reindex, plugin storage unique scope, revision kind/editors, and room storage. They were applied explicitly from the 1.5 build, with a D1 bookmark as the rollback point, using the commands below.
+
 Check first — this is read-only and reports applied, pending and unknown migrations:
 
 ```bash
@@ -138,7 +152,7 @@ pnpm emdash migrate --wrangler-config wrangler.jsonc
 
 `--wrangler-config` is **required**. EmDash does not discover `wrangler.jsonc` on its own: without the flag it fails with `D1 migrations require an explicit database selector or Wrangler config`. With it, the target is resolved from the `DB` binding and the remote database name is checked against `database_name`, so a mismatch aborts. `--d1 <uuid-or-name>` is the alternative when you want to skip the config entirely.
 
-The command needs credentials in the environment — it reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and does **not** reuse the OAuth token stored by `wrangler login`. Never commit them.
+The command needs credentials in the environment — it reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, and does **not** reuse the OAuth token stored by `wrangler login`. Never commit them. For the 1.5 upgrade the OAuth credential was exported for the command with `CLOUDFLARE_API_TOKEN="$(wrangler auth token)"` and the target was passed explicitly with `--d1 abricocotier-v2-d1 --account-id <account>`; `wrangler auth token` reads the stored credential without printing it into the repo.
 
 The command resumes from the last written batch if it is interrupted, so it is safe to re-run. If the Worker logs a stuck migration lock, release it first with `--release-lock`; use `--take-over-lock <id>` to apply under a lock you cannot release from the admin. `--check` applies nothing and exits non-zero when work remains, which makes it a good post-deploy gate. See [Core migrations](https://docs.emdashcms.com/deployment/core-migrations/).
 
