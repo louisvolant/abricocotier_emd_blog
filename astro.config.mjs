@@ -6,6 +6,7 @@ import { formsPlugin } from "@emdash-cms/plugin-forms";
 import webhookNotifier from "@emdash-cms/plugin-webhook-notifier";
 import { defineConfig, fontProviders } from "astro/config";
 import emdash from "emdash/astro";
+import { Features } from "lightningcss";
 
 export default defineConfig({
 	output: "server",
@@ -26,6 +27,14 @@ export default defineConfig({
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
+	},
+	vite: {
+		css: {
+			// Keep light-dark() native so the theme switcher works in
+			// production. Lightning CSS otherwise rewrites it into variables
+			// that follow only prefers-color-scheme.
+			lightningcss: { exclude: Features.LightDark },
+		},
 	},
 	integrations: [
 		react(),
