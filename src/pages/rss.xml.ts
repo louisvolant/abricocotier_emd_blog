@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getEmDashCollection, getSiteSettings } from "emdash";
 
+import { getSiteLocale } from "../utils/locale";
 import { resolveBlogSiteIdentity } from "../utils/site-identity";
 
 export const GET: APIRoute = async ({ site, url }) => {
@@ -37,9 +38,9 @@ export const GET: APIRoute = async ({ site, url }) => {
   <channel>
     <title>${escapeXml(siteTitle)}</title>
     <description>${escapeXml(siteTagline)}</description>
-    <link>${siteUrl.href}</link>
-    <atom:link href="${new URL("/rss.xml", siteUrl).href}" rel="self" type="application/rss+xml"/>
-    <language>fr</language>
+	<link>${siteUrl.href}</link>
+	<atom:link href="${new URL("/rss.xml", siteUrl).href}" rel="self" type="application/rss+xml"/>
+    <language>${getSiteLocale() ?? "en-us"}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
 ${items}
   </channel>
@@ -49,7 +50,6 @@ ${items}
 		headers: {
 			"Content-Type": "application/rss+xml; charset=utf-8",
 			"Cache-Control": "public, max-age=3600",
-			"Cloudflare-CDN-Cache-Control": "public, max-age=3600, stale-while-revalidate=600",
 		},
 	});
 };

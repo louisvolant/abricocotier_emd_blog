@@ -12,8 +12,8 @@ export interface BlogSiteIdentitySettings {
 	favicon?: MediaReference;
 }
 
-const DEFAULT_SITE_TITLE = "Abricocotier v2";
-const DEFAULT_SITE_TAGLINE = "Petites choses trouvées sur internet";
+const DEFAULT_SITE_TITLE = "My Blog";
+const DEFAULT_SITE_TAGLINE = "Thoughts, stories, and ideas.";
 
 export function resolveBlogSiteIdentity(settings?: BlogSiteIdentitySettings) {
 	return {

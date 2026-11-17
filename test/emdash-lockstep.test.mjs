@@ -33,8 +33,13 @@ test("the installed emdash core matches the version the adapter is built against
 		installedCore.version,
 		"the adapter and the core must be the same release",
 	);
+	// EmDash 1.5 moved this pin from `dependencies` to `peerDependencies`;
+	// accept either so the check survives the packaging change.
+	const pinned =
+		installedAdapter.dependencies?.emdash ??
+		installedAdapter.peerDependencies?.emdash;
 	assert.equal(
-		installedAdapter.dependencies.emdash,
+		pinned,
 		installedCore.version,
 		"the adapter pins an exact emdash version, so a mismatched core means two copies are installed",
 	);
